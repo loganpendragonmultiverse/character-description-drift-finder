@@ -1,0 +1,16 @@
+{
+    "observations":  [
+                         {
+                             "milestone":  1,
+                             "trait":  "eye color",
+                             "value":  "green",
+                             "character":  "Mara"
+                         },
+                         {
+                             "milestone":  4,
+                             "trait":  "eye color",
+                             "value":  "blue",
+                             "character":  "Mara"
+                         }
+                     ]
+}
