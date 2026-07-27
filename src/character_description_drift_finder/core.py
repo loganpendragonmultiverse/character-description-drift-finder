@@ -17,9 +17,7 @@ def _require(data: dict[str, Any], key: str) -> Any:
 def _description_drift(data: dict[str, Any]) -> dict[str, Any]:
     groups: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
     for item in _require(data, "observations"):
-        if any(
-            item.get(key) in (None, "") for key in ("character", "milestone", "trait", "value")
-        ):
+        if any(item.get(key) in (None, "") for key in ("character", "milestone", "trait", "value")):
             raise ValueError("observations need character, milestone, trait, and value")
         groups[str(item["character"]).casefold(), str(item["trait"]).casefold()].append(dict(item))
     drifts = []
