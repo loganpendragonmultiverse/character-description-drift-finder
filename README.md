@@ -44,7 +44,7 @@ Part of the [Logan Pendragon Forge open-source collection](https://www.loganpend
 An optional `expected_changes` list explains exact observed transitions:
 `[{"character": "Mara", "trait": "hair", "milestone": 2, "reason": "disguise"}]`.
 Character and trait matching use the same case folding as observations; milestones
-match exactly, including their supplied type. Observations retain the existing
+match their supplied value. Observations retain the existing
 milestone sort order, so use one consistent type and sortable chronology.
 
 `possible_drifts` retains all observations and warnings. A new `change_reviews`
