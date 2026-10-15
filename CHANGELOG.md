@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0 - 2026-10-15
+
+- Attach author reasons to exact character/trait/milestone transitions.
+- Retain possible drift evidence and label unexplained changes for review.
+- Reject missing, conflicting, ambiguous and unknown expected-change references.
+
 ## 1.0.0 - 2026-07-26
 
 - Released the first complete Character Description Drift Finder command-line workflow.
