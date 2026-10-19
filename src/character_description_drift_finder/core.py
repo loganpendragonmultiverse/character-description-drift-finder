@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import math
+import re
 from collections import defaultdict
 from itertools import pairwise
 from typing import Any
@@ -8,16 +10,44 @@ from typing import Any
 PROJECT = "character-description-drift-finder"
 
 
-def _require(data: dict[str, Any], key: str) -> Any:
-    value = data.get(key)
-    if value is None or value == "" or value == []:
-        raise ValueError(f"{key} is required")
-    return value
+def _finite_number(value: Any) -> bool:
+    return type(value) is int or isinstance(value, float) and math.isfinite(value)
+
+
+def _milestone(value: Any) -> str:
+    if isinstance(value, str) and value.strip():
+        return "text"
+    if _finite_number(value):
+        return "number"
+    raise ValueError("milestones must be nonblank strings or finite numbers")
+
+
+def _validate(data: dict[str, Any]) -> None:
+    if not isinstance(data, dict):
+        raise TypeError("input must be an object")
+    entries = data.get("observations")
+    if not isinstance(entries, list) or not entries:
+        raise ValueError("observations must be a nonempty list")
+    kinds: dict[tuple[str, str], str] = {}
+    for item in entries:
+        if not isinstance(item, dict):
+            raise TypeError("observations must be objects")
+        for field in ("character", "trait"):
+            if not isinstance(item.get(field), str) or not item[field].strip():
+                raise ValueError("character and trait must be nonblank strings")
+        value = item.get("value")
+        if not (isinstance(value, str) and value.strip() or _finite_number(value)):
+            raise ValueError("trait values must be nonblank strings or finite numbers")
+        kind = _milestone(item.get("milestone"))
+        key = (item["character"].casefold(), item["trait"].casefold())
+        if key in kinds and kinds[key] != kind:
+            raise ValueError("use one milestone type per character and trait")
+        kinds[key] = kind
 
 
 def _description_drift(data: dict[str, Any]) -> dict[str, Any]:
     groups: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
-    for item in _require(data, "observations"):
+    for item in data["observations"]:
         if any(item.get(key) in (None, "") for key in ("character", "milestone", "trait", "value")):
             raise ValueError("observations need character, milestone, trait, and value")
         groups[str(item["character"]).casefold(), str(item["trait"]).casefold()].append(dict(item))
@@ -36,6 +66,7 @@ def _description_drift(data: dict[str, Any]) -> dict[str, Any]:
                 or not isinstance(entry.get("milestone"), (str, int, float))
             ):
                 raise ValueError("expected changes need character, trait, milestone and reason")
+            _milestone(entry["milestone"])
             key = (entry["character"].casefold(), entry["trait"].casefold(), entry["milestone"])
             if key in annotations:
                 raise ValueError("conflicting expected-change annotations")
@@ -91,6 +122,7 @@ def _description_drift(data: dict[str, Any]) -> dict[str, Any]:
 
 
 def analyze(data: dict[str, Any]) -> dict[str, Any]:
+    _validate(data)
     return {"version": 1, "project": PROJECT, **_description_drift(data)}
 
 
@@ -104,6 +136,10 @@ def render_markdown(report: dict[str, Any]) -> str:
         if key not in {"version", "project"}:
             lines.append(f"## {key.replace('_', ' ').title()}")
             lines.append("")
-            lines.append(f"```json\n{json.dumps(value, indent=2, ensure_ascii=False)}\n```")
+            payload = json.dumps(value, indent=2, ensure_ascii=False)
+            fence = chr(96) * max(
+                3, max((len(run) for run in re.findall(chr(96) + "+", payload)), default=0) + 1
+            )
+            lines.append(f"{fence}json\n{payload}\n{fence}")
             lines.append("")
     return "\n".join(lines).rstrip() + "\n"

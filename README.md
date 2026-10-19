@@ -55,3 +55,25 @@ another trait, character or milestone. Missing reasons, duplicate annotations,
 unknown or unchanged references, and annotated milestones with multiple observations
 reject. Identical adjacent values do not create changes. Omitting the field preserves
 the legacy report shape.
+
+## Report and release behavior
+
+Install the wheel from the GitHub release with python -m pip install ./PACKAGE.whl,
+using the actual downloaded filename. The source distribution can also be installed
+with pip. The wheel includes these handoff documents and supplied examples under
+share/character-description-drift-finder/ in the installation prefix. A repository checkout is the easiest
+way to run the README examples as written.
+
+Invalid inputs or failed output writes return exit status 2. A successful command
+returns 0. Report files must be new: existing files, directories and symlinks are
+refused. Keep reports outside scanned folders to avoid counting prior reports.
+A failed write may leave a partial newly created report; no power-loss transaction
+is promised. Closed stdout pipes return 2. Filenames, story data and paths in
+reports can be sensitive; review before sharing.
+
+Character and trait names must be nonblank text; trait values are nonblank text or
+finite numbers. Within each character/trait group, use either finite numeric
+milestones or nonblank text milestones consistently. Text milestones sort
+lexically, so "10" sorts before "2"; numeric milestones sort numerically.
+Whitespace in character and trait identities is significant. Boolean milestones
+and mixed numeric/text chronology are rejected rather than guessed.

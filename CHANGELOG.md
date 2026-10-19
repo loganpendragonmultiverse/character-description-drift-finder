@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.1 - 2026-10-19
+
+- Validate observations and milestone types before sorting or matching expected changes.
+- Keep authored text inside Markdown evidence fences and protect report destinations; handle closed pipes cleanly.
+
 ## 1.1.0 - 2026-10-15
 
 - Attach author reasons to exact character/trait/milestone transitions.
